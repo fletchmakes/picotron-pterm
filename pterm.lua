@@ -13,6 +13,7 @@
 --   |_|            
 local VERSION = "0.0.1"
 
+-- easy copy/paste command for convenience during testing
 -- create_process("/documents/projects/pterm.lua", {window_attribs={show_in_workspace=true}})
 
 -- bounds of the lil_mono.font characters
@@ -29,6 +30,10 @@ local CURSOR = {x=0,y=0,fcol=7,bcol=0,col=14}
 
 -- controls whether or not we are currently accepting input from the user
 local IS_INPUT = false
+
+-- ---------------------------
+-- LIFE CYCLE
+-- ---------------------------
 
 function _init()
 	-- poke the mono font into the main font slot
@@ -48,6 +53,7 @@ function _update()
 	-- blink the cursor if input is on
 	if IS_INPUT then
 		if d ~= date() then
+			-- TODO: make blink every 0.5 second
 			CURSOR.col = abs(CURSOR.col - 14) -- blink on and off
 			d = date()
 		end
@@ -61,6 +67,10 @@ function _draw()
 	local printx,printy = CURSOR.x*CWIDTH,CURSOR.y*CHEIGHT 
 	rectfill(printx,printy,printx+CWIDTH,printy+CHEIGHT,CURSOR.col)
 end
+
+-- ---------------------------
+-- PRINTING FUNCTIONS
+-- ---------------------------
 
 -- pprint - print text to a pterm.lua terminal
 -- param: text - the text to print
@@ -123,6 +133,8 @@ function get_input(prompt)
 	pprint(prompt)
 	IS_INPUT = true
 	-- TODO: await the user's input via peektext(), readtext(), and keyp()
+	-- return the typed value after an "enter" key is pressed back to the process who called get_input()
+	-- use a send_message()?
 end
 
 -- get_cursor - get cursor details
@@ -137,14 +149,16 @@ function get_cursor()
 	}
 end
 
+-- prompt - print the terminal prompt
 function prompt()
 	CURSOR.y += 1
 	CURSOR.x = 1
+	-- TODO: print the user's pwd
 	pprint("/>")
 	IS_INPUT = true
-	-- TODO: display cursor and whatever the user types
 end
 
+-- welcome_msg - print the welcome prompt
 function welcome_msg()
 	-- ascii art
 	pprint("        _",8,0,0,0)
@@ -165,3 +179,37 @@ function welcome_msg()
 	-- prompt the user to type
 	prompt()
 end
+
+-- ---------------------------
+-- I/O FROM EXTERNAL PROCESSES
+-- ---------------------------
+-- the following events will come from pterm_io.lua - processes that communicate with pterm can include
+-- pterm_io.lua to get access to convenience functions that will manipulate the terminal
+
+on_event("pprint", function(msg)
+	-- TODO: read params from msg and call pprint
+end)
+
+on_event("pcursor", function(msg)
+	-- TODO: read params from msg and call pcursor
+end)
+
+on_event("pcolor", function(msg)
+	-- TODO: read params from msg and call pcolor
+end)
+
+on_event("get_input", function(msg)
+	-- TODO: read params from msg and call get_input
+end)
+
+on_event("get_cursor", function(msg)
+	-- TODO: read params from msg and call get_cursor
+end)
+
+-- ---------------------------
+-- TERMINAL IMPLEMENTATION
+-- ---------------------------
+
+-- TODO: refactor zep's /system/apps/terminal.lua into pterm.lua
+-- TODO: add wildcard (*) support to terminal commands that acccept filenames
+-- TODO: support the HOME and END keys on the keyboard
