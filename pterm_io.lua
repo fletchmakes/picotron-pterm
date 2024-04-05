@@ -18,7 +18,7 @@ local VERSION = "0.0.1"
 
 local PTERM_PID = -1
 
--- create_pterm - creates a new pterm.lua window
+-- create_pterm - creates a new pterm.lua window and sets the local PTERM_PID for use in future calls
 -- param: path - the path to the pterm.lua library file
 -- param: rows? - the number of characters tall the window should be (defaults to 20)
 -- param: cols? - the number of characters wide the window should be (defaults to 50)
